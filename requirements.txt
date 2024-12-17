@@ -13,8 +13,7 @@ python-dotenv
 pytorch_lightning
 regex
 matplotlib
-
-numpy==1.21.6
+numpy
 pytest
 scipy
 spacy
