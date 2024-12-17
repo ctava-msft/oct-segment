@@ -11,7 +11,7 @@ from segment_anything.modeling import Sam
 
 from typing import Optional, Tuple
 
-from .utils.transforms import ResizeLongestSide
+from utils.transforms import ResizeLongestSide
 
 
 class SamPredictor:
