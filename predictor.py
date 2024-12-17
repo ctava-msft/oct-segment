@@ -218,6 +218,10 @@ class SamPredictor:
         else:
             points = None
 
+        # Ensure boxes have the correct size
+        if boxes is not None and boxes.size(1) != 1:
+            boxes = boxes[:, :1, :]  # Adjust size to match sparse_embeddings
+
         # Embed prompts
         sparse_embeddings, dense_embeddings = self.model.prompt_encoder(
             points=points,
