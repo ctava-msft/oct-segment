@@ -30,12 +30,25 @@ python automatic_mask_generator.py <your_path_to_the_image>
 
 SAM2 is an enhanced version of the Segment Anything Model. For more details, refer to the [SAM2 paper](https://arxiv.org/pdf/2408.00714).
 
-
 ## Design
 
 ### Coordinates to be able to draw a polygon.
 layer_1_top = []
 layer_1_bottom = []
+
+# New Feature: Layer Coordinate Extraction
+
+SAM can now extract gradient-based layer coordinates from OCT images. After mask prediction, top and bottom coordinates for each layer are saved to separate files (`layer_N_top.txt` and `layer_N_bottom.txt`).
+
+## Usage
+
+After running the mask prediction, check the project directory for the generated layer coordinate files.
+
+```bash
+python automatic_mask_generator.py <your_path_to_the_image>
+```
+
+The coordinates for each layer will be saved as `layer_1_top.txt`, `layer_1_bottom.txt`, etc.
 
 Hey Guys - 
 

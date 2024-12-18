@@ -13,7 +13,7 @@ from segment_anything.predictor import SamPredictor
 from segment_anything import SamAutomaticMaskGenerator
 
 exp = 1
-exp_i = 4
+exp_i = 5
 output_dir = f"_output-{exp}-{exp_i}"
 os.makedirs(output_dir, exist_ok=True)
 
@@ -353,65 +353,42 @@ def main(image_path):
     print(f"Number of layers: {len(layers)}")
     print(f"Number of layer contours: {len(layer_contours)}")
     
-
-    # sam_checkpoint = "sam_vit_h_4b8939.pth"
-    # model_type = "vit_h"
-    # device = "cuda" if torch.cuda.is_available() else "cpu"
-    # sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
-    # sam.to(device=device)
+    sam_checkpoint = "sam_vit_h_4b8939.pth"
+    model_type = "vit_h"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
+    sam.to(device=device)
     
-    # mask_generator = SamAutomaticMaskGenerator(sam)
-    # predictor = SamPredictor(sam)
+    mask_generator = SamAutomaticMaskGenerator(sam)
     
-    # masks = []  # Initialize masks before the loop
+    # Mask generation returns a list over masks, where each mask is a dictionary containing various data about the mask. These keys are:
+    # * `segmentation` : the mask
+    # * `area` : the area of the mask in pixels
+    # * `bbox` : the boundary box of the mask in XYWH format
+    # * `predicted_iou` : the model's own prediction for the quality of the mask
+    # * `point_coords` : the sampled input point that generated this mask
+    # * `stability_score` : an additional measure of mask quality
+    # * `crop_box` : the crop of the image used to generate this mask in XYWH format
     
-    # for i, (layer, contour) in enumerate(zip(layers, layer_contours)):
-    #     masks.extend(mask_generator.generate(layer))
-    #     print(f"Total number of masks: {len(masks)}")
-    #     predictor.set_image(layer)
-    #     for mask in masks:
-    #         point_coords, point_labels, box, mask_input = extract_input_from_mask(mask)
-    #         if point_coords is None:
-    #             continue
-    #         # Resize mask_input to (1, 256, 256)
-    #         H, W = layer.shape[:2]
-    #         mask_input_resized = cv2.resize(mask_input.astype(np.uint8), (W // 4, H // 4), interpolation=cv2.INTER_NEAREST)
-    #         mask_input_resized = mask_input_resized[np.newaxis, :, :]
-    #         # Predict mask using the extracted inputs
-    #         new_masks, _, _ = predictor.predict(
-    #             point_coords=point_coords,
-    #             point_labels=point_labels,
-    #             box=box,
-    #             mask_input=mask_input_resized,
-    #             multimask_output=True
-    #         )
-        
-    #     # Extract coordinates from contour
-    #     coords = contour.squeeze()
-    #     if len(coords.shape) != 2:
-    #         continue  # Skip if contour is not valid
-    #     # Separate coordinates into top and bottom based on y-value
-    #     coords = coords[np.argsort(coords[:, 0])]  # Sort by x-coordinate
-    #     y_median = np.median(coords[:, 1])
-    #     layer_top = coords[coords[:, 1] <= y_median].tolist()
-    #     layer_bottom = coords[coords[:, 1] > y_median].tolist()
-    #     # Store or print the coordinate lists
-    #     print(f"layer_{i+1}_top = {layer_top}")
-    #     print(f"layer_{i+1}_bottom = {layer_bottom}")
-
-    # output_path = os.path.join(os.path.dirname(__file__), 'data', 'samples', 'layer-coordinates.json')
-    # random_suffix = random.randint(1000, 9999)
-    # output_path = output_path.replace(".json", f"_{random_suffix}.json")
+    masks = mask_generator.generate(image)
+    for mask in masks:
+        mask['segmentation'] = mask['segmentation'].tolist()
     
-    # with open(output_path, 'w') as f:
-    #     json.dump(new_masks, f, indent=4)
-    # print(f"Number of new masks saved: {len(new_masks)}")
+    print(len(masks))
+    print(masks[0].keys())
     
-    # plt.figure(figsize=(20,20))
-    # plt.imshow(image)
-    # show_annontations(masks)
-    # plt.axis('off')
-    # plt.show()
+    output_path = os.path.join(os.path.dirname(__file__), 'data', 'samples', 'masks.json')
+    random_suffix = random.randint(1000, 9999)
+    output_path = output_path.replace(".json", f"_{random_suffix}.json")
+    
+    with open(output_path, 'w') as f:
+        json.dump(masks, f, indent=4)
+    
+    plt.figure(figsize=(20,20))
+    plt.imshow(image)
+    show_annontations(masks)
+    plt.axis('off')
+    plt.show()
 
 if __name__ == "__main__":
     # parser = argparse.ArgumentParser(description="Automatic Mask Generator")

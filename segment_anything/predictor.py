@@ -6,7 +6,7 @@
 
 import numpy as np
 import torch
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, List
 
 from .modeling import Sam
 from .utils.transforms import ResizeLongestSide
@@ -161,6 +161,12 @@ class SamPredictor:
         masks_np = masks[0].detach().cpu().numpy()
         iou_predictions_np = iou_predictions[0].detach().cpu().numpy()
         low_res_masks_np = low_res_masks[0].detach().cpu().numpy()
+        
+        # Process gradients to find layer coordinates
+        gradients = self.model.mask_decoder.gradients
+        layer_coordinates = self.extract_layer_coordinates(gradients)
+        self.save_layer_coordinates(layer_coordinates)
+
         return masks_np, iou_predictions_np, low_res_masks_np
 
     @torch.no_grad()
@@ -239,6 +245,24 @@ class SamPredictor:
             masks = masks > self.model.mask_threshold
 
         return masks, iou_predictions, low_res_masks
+
+    def extract_layer_coordinates(self, gradients: torch.Tensor) -> Dict[str, List[Tuple[int, int]]]:
+        layer_coords = {}
+        # Example processing to extract top and bottom coordinates per layer
+        for layer in range(self.number_of_layers):
+            top_coords = []
+            bottom_coords = []
+            gradient_layer = gradients[layer].detach().cpu().numpy()
+            # ... implement gradient processing logic ...
+            layer_coords[f'layer_{layer}_top'] = top_coords
+            layer_coords[f'layer_{layer}_bottom'] = bottom_coords
+        return layer_coords
+
+    def save_layer_coordinates(self, layer_coords: Dict[str, List[Tuple[int, int]]]) -> None:
+        for layer, coords in layer_coords.items():
+            with open(f'{layer}.txt', 'w') as f:
+                for coord in coords:
+                    f.write(f'{coord}\n')
 
     def get_image_embedding(self) -> torch.Tensor:
         """

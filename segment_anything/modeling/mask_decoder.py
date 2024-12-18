@@ -97,6 +97,10 @@ class MaskDecoder(nn.Module):
             sparse_prompt_embeddings=sparse_prompt_embeddings,
             dense_prompt_embeddings=dense_prompt_embeddings,
         )
+        
+        # Extract gradient information
+        gradients = torch.autograd.grad(masks.sum(), image_embeddings, retain_graph=True)[0]
+        self.gradients = gradients  # Save gradients for later use
 
         # Select the correct mask or masks for output
         if multimask_output:
