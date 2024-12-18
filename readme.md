@@ -29,3 +29,38 @@ python automatic_mask_generator.py <your_path_to_the_image>
 ### SAM2
 
 SAM2 is an enhanced version of the Segment Anything Model. For more details, refer to the [SAM2 paper](https://arxiv.org/pdf/2408.00714).
+
+
+## Design
+
+### Coordinates to be able to draw a polygon.
+layer_1_top = []
+layer_1_bottom = []
+
+Hey Guys - 
+
+Good day. 
+
+Have realized the SAM model was detecting objects without provided detailed segmentation coordinates.
+That said, we were all attracted to the library for its ability to color code differences in the image gradients.
+As such, it had promise to give us what we need. 
+I was able to tweak the segment_anything source code to determine layers described as a coordinate system.
+
+This was accomplished by...
+
+Two options:
+option one: use signal processing to help find edges and edge detection to get contours then and feed layers into SAM
+option two: hack SAM - it knows about the gradients with colors, generatecoordinates from layers.
+
+Thanks for your patience with the discovery process as I recognize this was the third attempt.
+
+Hope you like it.
+
+Here is a link to the repository with the code:
+
+Here is the sample coordinate system:
+
+Please provide any feedback you have.
+
+Sincerely,
+Chris
