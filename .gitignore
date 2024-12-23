@@ -1,0 +1,10 @@
+.history
+.env
+.venv
+*.npy
+*.zip
+__pycache__
+*.pkl
+*.pdf
+*.pth
+_output*
